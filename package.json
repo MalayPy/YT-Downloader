@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js",
-    "postinstall": "node setup.js"
+    "postinstall": "node -e \"if(!process.env.RAILWAY_ENVIRONMENT) { require('child_process').execSync('node setup.js', {stdio:'inherit'}); }\""
   },
   "dependencies": {
     "cors": "^2.8.5",
