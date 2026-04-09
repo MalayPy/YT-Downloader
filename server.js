@@ -13,10 +13,7 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, "public")));
 
 function getBinPath(name) {
-  const exeName = process.platform === "win32" ? name + ".exe" : name;
-  const localPath = path.join(__dirname, "bin", exeName);
-  if (fs.existsSync(localPath)) return localPath;
-  return name;
+  return name; // use global installation on Render
 }
 
 // GET /api/info?url=...
