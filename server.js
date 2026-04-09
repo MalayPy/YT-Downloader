@@ -181,7 +181,7 @@ app.post("/api/download", (req, res) => {
   });
 });
 
-app.listen(PORT, () => {
+app.listen(PORT, "0.0.0.0", () => {
   console.log(`\n🎬 YT Downloader running at http://localhost:${PORT}`);
   console.log(`   ffmpeg location: ${path.join(__dirname, "bin")}\n`);
 });
