@@ -12,8 +12,20 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "public")));
 
+const IS_RAILWAY = !!process.env.RAILWAY_ENVIRONMENT;
+
 function getBinPath(name) {
-  return name; // use global installation on Render
+  // On Railway, yt-dlp is installed globally via pip (on PATH)
+  if (IS_RAILWAY) return name;
+  // Locally, use ./bin/
+  return path.join(__dirname, "bin", name);
+}
+
+function getFfmpegDir() {
+  // On Railway, ffmpeg is installed by nixpacks into /usr/bin
+  if (IS_RAILWAY) return "/usr/bin";
+  // Locally, ffmpeg is downloaded into ./bin/
+  return path.join(__dirname, "bin");
 }
 
 // GET /api/info?url=...
@@ -22,7 +34,7 @@ app.get("/api/info", (req, res) => {
   if (!url) return res.status(400).json({ error: "No URL provided" });
 
   const ytdlp = getBinPath("yt-dlp");
-  const binDir = path.join(__dirname, "bin");
+  const binDir = getFfmpegDir();
 
   const args = [
     "--dump-json",
@@ -100,7 +112,7 @@ app.post("/api/download", (req, res) => {
   if (!url || !formatId) return res.status(400).json({ error: "Missing params" });
 
   const ytdlp = getBinPath("yt-dlp");
-  const binDir = path.join(__dirname, "bin");
+  const binDir = getFfmpegDir();
   const tmpDir = os.tmpdir();
   const safeLabel = (label || "video").replace(/[^a-z0-9_\-]/gi, "_").slice(0, 60);
   const timestamp = Date.now();
@@ -183,5 +195,6 @@ app.post("/api/download", (req, res) => {
 
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`\n🎬 YT Downloader running at http://localhost:${PORT}`);
-  console.log(`   ffmpeg location: ${path.join(__dirname, "bin")}\n`);
+  console.log(`   Running on Railway: ${IS_RAILWAY}`);
+  console.log(`   ffmpeg location: ${getFfmpegDir()}\n`);
 });
