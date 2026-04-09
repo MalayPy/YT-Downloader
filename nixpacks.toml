@@ -2,7 +2,10 @@
 aptPkgs = ["ffmpeg", "python3", "python3-pip"]
 
 [phases.install]
-cmds = ["pip3 install yt-dlp", "npm install"]
+cmds = [
+  "pip3 install yt-dlp --break-system-packages",
+  "npm install"
+]
 
 [start]
 cmd = "node server.js"
