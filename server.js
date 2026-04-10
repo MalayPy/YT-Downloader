@@ -16,7 +16,7 @@ const IS_RAILWAY = !!process.env.RAILWAY_ENVIRONMENT;
 
 function getBinPath(name) {
   // On Railway, yt-dlp is installed globally via pip (on PATH)
-  if (IS_RAILWAY) return name;
+  if (IS_RAILWAY) return `/usr/local/bin/${name}`;
   // Locally, use ./bin/
   return path.join(__dirname, "bin", name);
 }
