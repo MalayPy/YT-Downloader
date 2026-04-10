@@ -41,6 +41,8 @@ app.get("/api/info", (req, res) => {
     "--no-playlist",
     "--no-warnings",
     "--ffmpeg-location", binDir,
+    "--extractor-args", "youtube:player_client=web,default",
+    "--add-header", "User-Agent:Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
     url,
   ];
 
@@ -125,6 +127,8 @@ app.post("/api/download", (req, res) => {
       "--no-playlist",
       "--no-warnings",
       "--ffmpeg-location", binDir,
+      "--extractor-args", "youtube:player_client=web,default",
+      "--add-header", "User-Agent:Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
       "-x",
       "--audio-format", "mp3",
       "--audio-quality", "0",
@@ -144,6 +148,8 @@ app.post("/api/download", (req, res) => {
       "--no-playlist",
       "--no-warnings",
       "--ffmpeg-location", binDir,
+      "--extractor-args", "youtube:player_client=web,default",
+      "--add-header", "User-Agent:Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
       "-f", formatStr,
       "--merge-output-format", "mp4",
       "--postprocessor-args", "ffmpeg:-c:v copy -c:a aac",
