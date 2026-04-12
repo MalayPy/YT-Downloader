@@ -28,6 +28,26 @@ function getFfmpegDir() {
   return path.join(__dirname, "bin");
 }
 
+// GET /api/thumbnail?url=... (proxy for CORS-blocked thumbnails)
+app.get("/api/thumbnail", (req, res) => {
+  const { url } = req.query;
+  if (!url) return res.status(400).end();
+
+  const mod = url.startsWith("https") ? require("https") : require("http");
+  const request = mod.get(url, {
+    headers: {
+      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+      "Referer": "https://www.instagram.com/",
+    }
+  }, (response) => {
+    res.setHeader("Content-Type", response.headers["content-type"] || "image/jpeg");
+    res.setHeader("Cache-Control", "public, max-age=3600");
+    response.pipe(res);
+  });
+
+  request.on("error", () => res.status(500).end());
+});
+
 // GET /api/info?url=...
 app.get("/api/info", (req, res) => {
   const { url } = req.query;
