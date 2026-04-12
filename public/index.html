@@ -18,6 +18,8 @@
       --accent2: #ff7043;
       --insta: #e1306c;
       --insta2: #f77737;
+      --pinterest: #e60023;
+      --pinterest2: #ad081b;
       --text: #f0f0f5;
       --muted: #6b6b80;
       --success: #22d47a;
@@ -106,6 +108,11 @@
       border-bottom-color: var(--accent);
     }
 
+    .tab-btn.active-pt {
+      color: var(--pinterest);
+      border-bottom-color: var(--pinterest);
+    }
+
     .tab-btn.active-ig {
       color: var(--insta);
       border-bottom-color: var(--insta);
@@ -142,6 +149,7 @@
     }
 
     .hero h2 em.ig { color: var(--insta); }
+    .hero h2 em.pt { color: var(--pinterest); }
 
     .hero p {
       color: var(--muted);
@@ -166,6 +174,14 @@
       top: 0; left: 0; right: 0;
       height: 2px;
       background: linear-gradient(90deg, var(--accent), var(--accent2), transparent);
+    }
+
+    .input-card.pt-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--pinterest), var(--pinterest2), transparent);
     }
 
     .input-card.ig-card::before {
@@ -197,6 +213,7 @@
     .url-input::placeholder { color: var(--muted); }
     .url-input:focus { border-color: var(--accent); }
     .url-input.ig-input:focus { border-color: var(--insta); }
+    .url-input.pt-input:focus { border-color: var(--pinterest); }
 
     .fetch-btn {
       background: linear-gradient(135deg, var(--accent), var(--accent2));
@@ -211,6 +228,10 @@
       white-space: nowrap;
       transition: opacity 0.2s, transform 0.15s;
       letter-spacing: 0.3px;
+    }
+
+    .fetch-btn.pt-btn {
+      background: linear-gradient(135deg, var(--pinterest), var(--pinterest2));
     }
 
     .fetch-btn.ig-btn {
@@ -266,6 +287,11 @@
       border-radius: 10px;
       overflow: hidden;
       background: var(--surface);
+    }
+
+    .thumb-wrap.pt-thumb {
+      width: 80px; height: 80px;
+      border-radius: 12px;
     }
 
     .thumb-wrap.ig-thumb {
@@ -345,6 +371,11 @@
       background: rgba(167,139,250,0.07);
     }
 
+    .fmt-btn.pt-fmt-btn:hover {
+      border-color: var(--pinterest);
+      background: rgba(230,0,35,0.07);
+    }
+
     .fmt-btn.ig-fmt-btn:hover {
       border-color: var(--insta);
       background: rgba(225,48,108,0.07);
@@ -381,6 +412,7 @@
     .tag-video { background: rgba(255,60,60,0.15); color: var(--accent); }
     .tag-audio { background: rgba(167,139,250,0.15); color: var(--audio-color); }
     .tag-ig    { background: rgba(225,48,108,0.15); color: var(--insta); }
+    .tag-pt    { background: rgba(230,0,35,0.15); color: var(--pinterest); }
 
     /* ── DOWNLOAD PROGRESS ── */
     .dl-status-wrap {
@@ -409,6 +441,11 @@
       animation: spin 0.8s linear infinite;
     }
 
+    .dl-spinner.pt-spinner {
+      border-color: rgba(230,0,35,0.2);
+      border-top-color: var(--pinterest);
+    }
+
     .dl-spinner.ig-spinner {
       border-color: rgba(225,48,108,0.2);
       border-top-color: var(--insta);
@@ -427,6 +464,10 @@
       border-radius: 99px;
       width: 0%;
       animation: indeterminate 1.5s ease infinite;
+    }
+
+    .progress-bar.pt-bar {
+      background: linear-gradient(90deg, var(--pinterest), var(--pinterest2));
     }
 
     .progress-bar.ig-bar {
@@ -473,7 +514,12 @@
       .fetch-btn { width: 100%; }
       .video-meta { flex-direction: column; }
       .thumb-wrap { width: 100%; height: 160px; }
-      .thumb-wrap.ig-thumb { width: 100%; height: 200px; }
+      .thumb-wrap.pt-thumb {
+      width: 80px; height: 80px;
+      border-radius: 12px;
+    }
+
+    .thumb-wrap.ig-thumb { width: 100%; height: 200px; }
     }
   </style>
 </head>
@@ -483,7 +529,7 @@
   <div class="logo-icon">⬇</div>
   <div>
     <h1>Media Downloader</h1>
-    <span>YouTube & Instagram — Free & Fast</span>
+    <span>YouTube · Instagram · Pinterest — Free & Fast</span>
   </div>
 </header>
 
@@ -513,6 +559,13 @@
       <circle cx="14.5" cy="5.5" r="0.8" fill="white"/>
     </svg>
     Instagram
+  </button>
+  <button class="tab-btn" id="tab-pt" onclick="switchTab('pt')">
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0">
+      <rect width="20" height="20" rx="5" fill="#E60023"/>
+      <path d="M10 3C6.686 3 4 5.686 4 9c0 2.278 1.308 4.253 3.2 5.24-.044-.378-.084-.958.017-1.37.092-.373.614-2.604.614-2.604s-.157-.314-.157-.778c0-.729.423-1.274.949-1.274.448 0 .665.336.665.739 0 .45-.287 1.124-.435 1.748-.124.522.261.947.774.947.929 0 1.644-0.979 1.644-2.393 0-1.251-.899-2.124-2.183-2.124-1.486 0-2.358 1.114-2.358 2.266 0 .449.173.929.388 1.192a.156.156 0 0 1 .036.149c-.04.163-.128.522-.145.595-.023.096-.077.116-.177.07-.655-.305-1.065-1.263-1.065-2.033 0-1.653 1.201-3.172 3.463-3.172 1.817 0 3.228 1.295 3.228 3.024 0 1.804-1.138 3.254-2.717 3.254-.531 0-1.03-.276-1.2-.601l-.326 1.217c-.118.454-.437 1.023-.651 1.369.49.152 1.009.233 1.547.233 3.314 0 6-2.686 6-6s-2.686-6-6-6z" fill="white"/>
+    </svg>
+    Pinterest
   </button>
 </div>
 
@@ -634,6 +687,59 @@
 
   </div>
 
+  <!-- ══════════════ PINTEREST PANEL ══════════════ -->
+  <div class="tab-panel" id="panel-pt">
+
+    <div class="hero">
+      <h2>Download <em class="pt">Any</em><br>Pinterest Video</h2>
+      <p>Paste a Pinterest pin link · choose quality · download instantly</p>
+    </div>
+
+    <div class="input-card pt-card">
+      <div class="input-row">
+        <input
+          type="text"
+          id="ptUrlInput"
+          class="url-input pt-input"
+          placeholder="https://www.pinterest.com/pin/..."
+          autocomplete="off"
+        />
+        <button class="fetch-btn pt-btn" id="ptFetchBtn" onclick="ptFetchInfo()">Get Video</button>
+      </div>
+      <div class="status" id="ptStatusMsg"></div>
+    </div>
+
+    <div class="video-info-wrap" id="ptVideoInfo">
+      <div class="video-meta" id="ptVideoMeta">
+        <div class="thumb-wrap pt-thumb">
+          <img id="ptThumbnail" src="" alt="thumbnail" />
+        </div>
+        <div class="meta-text">
+          <h3 id="ptVideoTitle"></h3>
+          <div class="meta-row">
+            <span class="meta-pill">📌 <span id="ptChannelName"></span></span>
+            <span class="meta-pill">⏱ <span id="ptDuration"></span></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="formats-section">
+        <div class="section-label">📹 Available Formats</div>
+        <div class="formats-grid" id="ptFormats"></div>
+      </div>
+
+      <div class="dl-status-wrap" id="ptDlStatus">
+        <div class="dl-top">
+          <span class="dl-label" id="ptDlLabel">Preparing download…</span>
+          <div class="dl-spinner pt-spinner"></div>
+        </div>
+        <div class="progress-bar-wrap"><div class="progress-bar pt-bar" id="ptProgressBar"></div></div>
+        <div class="dl-note">This may take a moment. The file will download automatically.</div>
+      </div>
+    </div>
+
+  </div>
+
 </main>
 
 <footer>
@@ -647,7 +753,7 @@
   // ── TAB SWITCHING ──────────────────────────────
   function switchTab(tab) {
     document.querySelectorAll(".tab-panel").forEach(p => p.classList.remove("active"));
-    document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active-yt", "active-ig"));
+    document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active-yt", "active-ig", "active-pt"));
     document.getElementById(`panel-${tab}`).classList.add("active");
     document.getElementById(`tab-${tab}`).classList.add(`active-${tab}`);
   }
@@ -826,9 +932,65 @@
     }
   }
 
-  // Allow Enter key on both inputs
+
+  // ── PINTEREST ─────────────────────────────────
+  async function ptFetchInfo() {
+    const url = document.getElementById("ptUrlInput").value.trim();
+    if (!url) { setStatus("ptStatusMsg", "error", "Please paste a Pinterest URL first."); return; }
+    if (!url.includes("pinterest.com") && !url.includes("pin.it")) {
+      setStatus("ptStatusMsg", "error", "Please enter a valid Pinterest URL.");
+      return;
+    }
+
+    document.getElementById("ptFetchBtn").disabled = true;
+    document.getElementById("ptVideoInfo").style.display = "none";
+    setStatus("ptStatusMsg", "loading", "Fetching Pinterest video info…");
+
+    try {
+      const res = await fetch(`${API}/info?url=${encodeURIComponent(url)}`);
+      const data = await res.json();
+      if (!res.ok) { setStatus("ptStatusMsg", "error", data.error || "Failed to fetch video info."); return; }
+      clearStatus("ptStatusMsg");
+      ptRenderInfo(data);
+    } catch (e) {
+      setStatus("ptStatusMsg", "error", "Cannot connect to server.");
+    } finally {
+      document.getElementById("ptFetchBtn").disabled = false;
+    }
+  }
+
+  function ptRenderInfo(data) {
+    const ptThumb = data.thumbnail ? `/api/thumbnail?url=${encodeURIComponent(data.thumbnail)}` : "";
+    document.getElementById("ptThumbnail").src = ptThumb;
+    document.getElementById("ptVideoTitle").textContent = data.title || "Pinterest Video";
+    document.getElementById("ptChannelName").textContent = data.channel || "Unknown";
+    document.getElementById("ptDuration").textContent = formatDuration(data.duration);
+
+    const grid = document.getElementById("ptFormats");
+    grid.innerHTML = "";
+
+    const url = document.getElementById("ptUrlInput").value.trim();
+
+    (data.formats || []).forEach((fmt) => {
+      const btn = document.createElement("button");
+      btn.className = "fmt-btn pt-fmt-btn";
+      btn.innerHTML = `
+        <span class="fmt-tag tag-pt">${fmt.ext.toUpperCase()}</span>
+        <div class="fmt-label">${fmt.label}</div>
+        <div class="fmt-note">${fmt.note || ""}</div>
+      `;
+      btn.addEventListener("click", () => startDownload(url, fmt, "pt"));
+      grid.appendChild(btn);
+    });
+
+    document.getElementById("ptVideoInfo").style.display = "block";
+    document.getElementById("ptDlStatus").style.display = "none";
+  }
+
+  // Allow Enter key on all inputs
   document.getElementById("ytUrlInput").addEventListener("keydown", e => { if (e.key === "Enter") ytFetchInfo(); });
   document.getElementById("igUrlInput").addEventListener("keydown", e => { if (e.key === "Enter") igFetchInfo(); });
+  document.getElementById("ptUrlInput").addEventListener("keydown", e => { if (e.key === "Enter") ptFetchInfo(); });
 </script>
 </body>
 </html>
