@@ -754,7 +754,8 @@
   }
 
   function igRenderInfo(data) {
-    document.getElementById("igThumbnail").src = data.thumbnail || "";
+    const igThumb = data.thumbnail ? `/api/thumbnail?url=${encodeURIComponent(data.thumbnail)}` : "";
+    document.getElementById("igThumbnail").src = igThumb;
     document.getElementById("igVideoTitle").textContent = data.title || "Instagram Video";
     document.getElementById("igChannelName").textContent = data.channel || "Unknown";
     document.getElementById("igDuration").textContent = formatDuration(data.duration);
