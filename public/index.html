@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
- <meta name="google-adsense-account" content="ca-pub-4254975475043341">
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>YT Downloader</title>
+  <title>Media Downloader</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
   <style>
@@ -17,6 +16,8 @@
       --border: #252535;
       --accent: #ff3c3c;
       --accent2: #ff7043;
+      --insta: #e1306c;
+      --insta2: #f77737;
       --text: #f0f0f5;
       --muted: #6b6b80;
       --success: #22d47a;
@@ -71,6 +72,50 @@
       letter-spacing: 0.5px;
     }
 
+    /* ── TABS ── */
+    .tabs {
+      display: flex;
+      gap: 0;
+      padding: 0 40px;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+    }
+
+    .tab-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 16px 28px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--muted);
+      background: none;
+      border: none;
+      border-bottom: 2px solid transparent;
+      cursor: pointer;
+      transition: color 0.2s, border-color 0.2s;
+      letter-spacing: 0.3px;
+      margin-bottom: -1px;
+    }
+
+    .tab-btn:hover { color: var(--text); }
+
+    .tab-btn.active-yt {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+    }
+
+    .tab-btn.active-ig {
+      color: var(--insta);
+      border-bottom-color: var(--insta);
+    }
+
+
+    /* ── TAB PANELS ── */
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
     /* ── MAIN ── */
     main {
       max-width: 780px;
@@ -96,6 +141,8 @@
       color: var(--accent);
     }
 
+    .hero h2 em.ig { color: var(--insta); }
+
     .hero p {
       color: var(--muted);
       font-size: 15px;
@@ -113,12 +160,20 @@
       overflow: hidden;
     }
 
-    .input-card::before {
+    .input-card.yt-card::before {
       content: '';
       position: absolute;
       top: 0; left: 0; right: 0;
       height: 2px;
       background: linear-gradient(90deg, var(--accent), var(--accent2), transparent);
+    }
+
+    .input-card.ig-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--insta), var(--insta2), transparent);
     }
 
     .input-row {
@@ -141,6 +196,7 @@
 
     .url-input::placeholder { color: var(--muted); }
     .url-input:focus { border-color: var(--accent); }
+    .url-input.ig-input:focus { border-color: var(--insta); }
 
     .fetch-btn {
       background: linear-gradient(135deg, var(--accent), var(--accent2));
@@ -155,6 +211,10 @@
       white-space: nowrap;
       transition: opacity 0.2s, transform 0.15s;
       letter-spacing: 0.3px;
+    }
+
+    .fetch-btn.ig-btn {
+      background: linear-gradient(135deg, var(--insta), var(--insta2));
     }
 
     .fetch-btn:hover { opacity: 0.9; transform: translateY(-1px); }
@@ -187,7 +247,7 @@
     @keyframes spin { to { transform: rotate(360deg); } }
 
     /* ── VIDEO INFO ── */
-    #videoInfo { display: none; }
+    .video-info-wrap { display: none; }
 
     .video-meta {
       background: var(--card);
@@ -206,6 +266,11 @@
       border-radius: 10px;
       overflow: hidden;
       background: var(--surface);
+    }
+
+    .thumb-wrap.ig-thumb {
+      width: 80px; height: 80px;
+      border-radius: 12px;
     }
 
     .thumb-wrap img {
@@ -280,6 +345,11 @@
       background: rgba(167,139,250,0.07);
     }
 
+    .fmt-btn.ig-fmt-btn:hover {
+      border-color: var(--insta);
+      background: rgba(225,48,108,0.07);
+    }
+
     .fmt-btn.downloading {
       opacity: 0.6;
       pointer-events: none;
@@ -308,18 +378,12 @@
       border-radius: 20px;
     }
 
-    .tag-video {
-      background: rgba(255,60,60,0.15);
-      color: var(--accent);
-    }
-
-    .tag-audio {
-      background: rgba(167,139,250,0.15);
-      color: var(--audio-color);
-    }
+    .tag-video { background: rgba(255,60,60,0.15); color: var(--accent); }
+    .tag-audio { background: rgba(167,139,250,0.15); color: var(--audio-color); }
+    .tag-ig    { background: rgba(225,48,108,0.15); color: var(--insta); }
 
     /* ── DOWNLOAD PROGRESS ── */
-    #dlStatus {
+    .dl-status-wrap {
       display: none;
       margin-top: 18px;
       background: var(--card);
@@ -335,10 +399,7 @@
       margin-bottom: 12px;
     }
 
-    .dl-label {
-      font-size: 13px;
-      font-weight: 500;
-    }
+    .dl-label { font-size: 13px; font-weight: 500; }
 
     .dl-spinner {
       width: 18px; height: 18px;
@@ -346,6 +407,11 @@
       border-top-color: var(--accent);
       border-radius: 50%;
       animation: spin 0.8s linear infinite;
+    }
+
+    .dl-spinner.ig-spinner {
+      border-color: rgba(225,48,108,0.2);
+      border-top-color: var(--insta);
     }
 
     .progress-bar-wrap {
@@ -360,8 +426,11 @@
       background: linear-gradient(90deg, var(--accent), var(--accent2));
       border-radius: 99px;
       width: 0%;
-      transition: width 0.4s ease;
       animation: indeterminate 1.5s ease infinite;
+    }
+
+    .progress-bar.ig-bar {
+      background: linear-gradient(90deg, var(--insta), var(--insta2));
     }
 
     @keyframes indeterminate {
@@ -370,11 +439,21 @@
       100% { width: 0%; margin-left: 100%; }
     }
 
-    .dl-note {
-      font-size: 12px;
+    .dl-note { font-size: 12px; color: var(--muted); margin-top: 10px; }
+
+    /* ── IG INFO BOX ── */
+    .ig-info-note {
+      background: rgba(225,48,108,0.07);
+      border: 1px solid rgba(225,48,108,0.2);
+      border-radius: 12px;
+      padding: 14px 18px;
+      font-size: 13px;
       color: var(--muted);
-      margin-top: 10px;
+      margin-bottom: 20px;
+      line-height: 1.6;
     }
+
+    .ig-info-note strong { color: var(--insta); }
 
     /* ── FOOTER ── */
     footer {
@@ -388,81 +467,173 @@
     /* ── RESPONSIVE ── */
     @media (max-width: 500px) {
       header { padding: 20px; }
+      .tabs { padding: 0 20px; }
+      .tab-btn { padding: 14px 16px; font-size: 13px; }
       .input-row { flex-direction: column; }
       .fetch-btn { width: 100%; }
       .video-meta { flex-direction: column; }
       .thumb-wrap { width: 100%; height: 160px; }
+      .thumb-wrap.ig-thumb { width: 100%; height: 200px; }
     }
   </style>
 </head>
 <body>
 
 <header>
-  <div class="logo-icon">▶</div>
+  <div class="logo-icon">⬇</div>
   <div>
-    <h1>YT Downloader</h1>
-    <span>YouTube to MP4 / MP3 — Free & Fast</span>
+    <h1>Media Downloader</h1>
+    <span>YouTube & Instagram — Free & Fast</span>
   </div>
 </header>
 
+<!-- TABS -->
+<div class="tabs">
+  <button class="tab-btn active-yt" id="tab-yt" onclick="switchTab('yt')">
+    <svg width="22" height="16" viewBox="0 0 22 16" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0">
+      <rect width="22" height="16" rx="4" fill="#FF0000"/>
+      <polygon points="9,4.5 9,11.5 15.5,8" fill="white"/>
+    </svg>
+    YouTube
+  </button>
+  <button class="tab-btn" id="tab-ig" onclick="switchTab('ig')">
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0">
+      <defs>
+        <radialGradient id="ig-grad" cx="30%" cy="107%" r="130%">
+          <stop offset="0%" stop-color="#fdf497"/>
+          <stop offset="10%" stop-color="#fdf497"/>
+          <stop offset="50%" stop-color="#fd5949"/>
+          <stop offset="68%" stop-color="#d6249f"/>
+          <stop offset="100%" stop-color="#285AEB"/>
+        </radialGradient>
+      </defs>
+      <rect width="20" height="20" rx="5" fill="url(#ig-grad)"/>
+      <rect x="5.5" y="5.5" width="9" height="9" rx="2.5" stroke="white" stroke-width="1.5" fill="none"/>
+      <circle cx="10" cy="10" r="2.5" stroke="white" stroke-width="1.5" fill="none"/>
+      <circle cx="14.5" cy="5.5" r="0.8" fill="white"/>
+    </svg>
+    Instagram
+  </button>
+</div>
+
 <main>
 
-  <div class="hero">
-    <h2>Download <em>Any</em><br>YouTube Video</h2>
-    <p>Paste the link · choose quality · download instantly</p>
-  </div>
+  <!-- ══════════════ YOUTUBE PANEL ══════════════ -->
+  <div class="tab-panel active" id="panel-yt">
 
-  <div class="input-card">
-    <div class="input-row">
-      <input
-        type="text"
-        id="urlInput"
-        class="url-input"
-        placeholder="https://www.youtube.com/watch?v=..."
-        autocomplete="off"
-      />
-      <button class="fetch-btn" id="fetchBtn" onclick="fetchInfo()">Get Video</button>
+    <div class="hero">
+      <h2>Download <em>Any</em><br>YouTube Video</h2>
+      <p>Paste the link · choose quality · download instantly</p>
     </div>
-    <div class="status" id="statusMsg"></div>
-  </div>
 
-  <div id="videoInfo">
-
-    <div class="video-meta" id="videoMeta">
-      <div class="thumb-wrap">
-        <img id="thumbnail" src="" alt="thumbnail" />
+    <div class="input-card yt-card">
+      <div class="input-row">
+        <input
+          type="text"
+          id="ytUrlInput"
+          class="url-input"
+          placeholder="https://www.youtube.com/watch?v=..."
+          autocomplete="off"
+        />
+        <button class="fetch-btn" id="ytFetchBtn" onclick="ytFetchInfo()">Get Video</button>
       </div>
-      <div class="meta-text">
-        <h3 id="videoTitle"></h3>
-        <div class="meta-row">
-          <span class="meta-pill">📺 <span id="channelName"></span></span>
-          <span class="meta-pill">⏱ <span id="duration"></span></span>
+      <div class="status" id="ytStatusMsg"></div>
+    </div>
+
+    <div class="video-info-wrap" id="ytVideoInfo">
+      <div class="video-meta" id="ytVideoMeta">
+        <div class="thumb-wrap">
+          <img id="ytThumbnail" src="" alt="thumbnail" />
+        </div>
+        <div class="meta-text">
+          <h3 id="ytVideoTitle"></h3>
+          <div class="meta-row">
+            <span class="meta-pill">📺 <span id="ytChannelName"></span></span>
+            <span class="meta-pill">⏱ <span id="ytDuration"></span></span>
+          </div>
         </div>
       </div>
-    </div>
 
-    <div class="formats-section" id="videoFormatsSection">
-      <div class="section-label">📹 Video Formats</div>
-      <div class="formats-grid" id="videoFormats"></div>
-    </div>
-
-    <div class="formats-section" id="audioFormatsSection">
-      <div class="section-label">🎵 Audio Only</div>
-      <div class="formats-grid" id="audioFormats"></div>
-    </div>
-
-    <div id="dlStatus">
-      <div class="dl-top">
-        <span class="dl-label" id="dlLabel">Preparing download…</span>
-        <div class="dl-spinner"></div>
+      <div class="formats-section" id="ytVideoFormatsSection">
+        <div class="section-label">📹 Video Formats</div>
+        <div class="formats-grid" id="ytVideoFormats"></div>
       </div>
-      <div class="progress-bar-wrap">
-        <div class="progress-bar" id="progressBar"></div>
+
+      <div class="formats-section" id="ytAudioFormatsSection">
+        <div class="section-label">🎵 Audio Only</div>
+        <div class="formats-grid" id="ytAudioFormats"></div>
       </div>
-      <div class="dl-note">This may take a moment depending on video length and quality. The file will download automatically.</div>
+
+      <div class="dl-status-wrap" id="ytDlStatus">
+        <div class="dl-top">
+          <span class="dl-label" id="ytDlLabel">Preparing download…</span>
+          <div class="dl-spinner"></div>
+        </div>
+        <div class="progress-bar-wrap"><div class="progress-bar" id="ytProgressBar"></div></div>
+        <div class="dl-note">This may take a moment. The file will download automatically.</div>
+      </div>
     </div>
 
   </div>
+
+  <!-- ══════════════ INSTAGRAM PANEL ══════════════ -->
+  <div class="tab-panel" id="panel-ig">
+
+    <div class="hero">
+      <h2>Download <em class="ig">Any</em><br>Instagram Video</h2>
+      <p>Reels · Posts · Stories — paste the link & download</p>
+    </div>
+
+    <div class="ig-info-note">
+      📌 Works with <strong>public</strong> Instagram posts, reels, and videos.<br>
+      Private accounts require you to be logged in — cookies not supported yet.
+    </div>
+
+    <div class="input-card ig-card">
+      <div class="input-row">
+        <input
+          type="text"
+          id="igUrlInput"
+          class="url-input ig-input"
+          placeholder="https://www.instagram.com/reel/..."
+          autocomplete="off"
+        />
+        <button class="fetch-btn ig-btn" id="igFetchBtn" onclick="igFetchInfo()">Get Video</button>
+      </div>
+      <div class="status" id="igStatusMsg"></div>
+    </div>
+
+    <div class="video-info-wrap" id="igVideoInfo">
+      <div class="video-meta" id="igVideoMeta">
+        <div class="thumb-wrap ig-thumb">
+          <img id="igThumbnail" src="" alt="thumbnail" />
+        </div>
+        <div class="meta-text">
+          <h3 id="igVideoTitle"></h3>
+          <div class="meta-row">
+            <span class="meta-pill">👤 <span id="igChannelName"></span></span>
+            <span class="meta-pill">⏱ <span id="igDuration"></span></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="formats-section">
+        <div class="section-label">📹 Available Formats</div>
+        <div class="formats-grid" id="igFormats"></div>
+      </div>
+
+      <div class="dl-status-wrap" id="igDlStatus">
+        <div class="dl-top">
+          <span class="dl-label" id="igDlLabel">Preparing download…</span>
+          <div class="dl-spinner ig-spinner"></div>
+        </div>
+        <div class="progress-bar-wrap"><div class="progress-bar ig-bar" id="igProgressBar"></div></div>
+        <div class="dl-note">This may take a moment. The file will download automatically.</div>
+      </div>
+    </div>
+
+  </div>
+
 </main>
 
 <footer>
@@ -473,6 +644,15 @@
 <script>
   const API = "/api";
 
+  // ── TAB SWITCHING ──────────────────────────────
+  function switchTab(tab) {
+    document.querySelectorAll(".tab-panel").forEach(p => p.classList.remove("active"));
+    document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active-yt", "active-ig"));
+    document.getElementById(`panel-${tab}`).classList.add("active");
+    document.getElementById(`tab-${tab}`).classList.add(`active-${tab}`);
+  }
+
+  // ── HELPERS ───────────────────────────────────
   function formatDuration(secs) {
     if (!secs) return "N/A";
     const h = Math.floor(secs / 3600);
@@ -482,8 +662,8 @@
     return `${m}:${String(s).padStart(2,"0")}`;
   }
 
-  function setStatus(type, msg) {
-    const el = document.getElementById("statusMsg");
+  function setStatus(id, type, msg) {
+    const el = document.getElementById(id);
     el.className = `status ${type}`;
     if (type === "loading") {
       el.innerHTML = `<div class="spinner"></div><span>${msg}</span>`;
@@ -492,84 +672,124 @@
     }
   }
 
-  function clearStatus() {
-    const el = document.getElementById("statusMsg");
+  function clearStatus(id) {
+    const el = document.getElementById(id);
     el.className = "status";
     el.textContent = "";
   }
 
-  async function fetchInfo() {
-    const url = document.getElementById("urlInput").value.trim();
-    if (!url) { setStatus("error", "Please paste a YouTube URL first."); return; }
+  // ── YOUTUBE ───────────────────────────────────
+  async function ytFetchInfo() {
+    const url = document.getElementById("ytUrlInput").value.trim();
+    if (!url) { setStatus("ytStatusMsg", "error", "Please paste a YouTube URL first."); return; }
 
-    document.getElementById("fetchBtn").disabled = true;
-    document.getElementById("videoInfo").style.display = "none";
-    setStatus("loading", "Fetching video info…");
+    document.getElementById("ytFetchBtn").disabled = true;
+    document.getElementById("ytVideoInfo").style.display = "none";
+    setStatus("ytStatusMsg", "loading", "Fetching video info…");
 
     try {
       const res = await fetch(`${API}/info?url=${encodeURIComponent(url)}`);
       const data = await res.json();
-
-      if (!res.ok) {
-        setStatus("error", data.error || "Failed to fetch video info.");
-        document.getElementById("fetchBtn").disabled = false;
-        return;
-      }
-
-      clearStatus();
-      renderInfo(data);
+      if (!res.ok) { setStatus("ytStatusMsg", "error", data.error || "Failed to fetch video info."); return; }
+      clearStatus("ytStatusMsg");
+      ytRenderInfo(data);
     } catch (e) {
-      setStatus("error", "Cannot connect to server. Is it running? (npm start)");
+      setStatus("ytStatusMsg", "error", "Cannot connect to server.");
+    } finally {
+      document.getElementById("ytFetchBtn").disabled = false;
     }
-
-    document.getElementById("fetchBtn").disabled = false;
   }
 
-  function renderInfo(data) {
-    document.getElementById("thumbnail").src = data.thumbnail || "";
-    document.getElementById("videoTitle").textContent = data.title || "Unknown Title";
-    document.getElementById("channelName").textContent = data.channel || "Unknown";
-    document.getElementById("duration").textContent = formatDuration(data.duration);
+  function ytRenderInfo(data) {
+    document.getElementById("ytThumbnail").src = data.thumbnail || "";
+    document.getElementById("ytVideoTitle").textContent = data.title || "Unknown Title";
+    document.getElementById("ytChannelName").textContent = data.channel || "Unknown";
+    document.getElementById("ytDuration").textContent = formatDuration(data.duration);
 
-    const videoGrid = document.getElementById("videoFormats");
-    const audioGrid = document.getElementById("audioFormats");
+    const videoGrid = document.getElementById("ytVideoFormats");
+    const audioGrid = document.getElementById("ytAudioFormats");
     videoGrid.innerHTML = "";
     audioGrid.innerHTML = "";
 
-    const url = document.getElementById("urlInput").value.trim();
+    const url = document.getElementById("ytUrlInput").value.trim();
 
     (data.formats || []).forEach((fmt) => {
       const btn = document.createElement("button");
       btn.className = `fmt-btn${fmt.type === "audio" ? " audio-btn" : ""}`;
-
       btn.innerHTML = `
         <span class="fmt-tag ${fmt.type === "audio" ? "tag-audio" : "tag-video"}">${fmt.ext.toUpperCase()}</span>
         <div class="fmt-label">${fmt.label}</div>
         <div class="fmt-note">${fmt.note || ""}</div>
       `;
-
-      btn.addEventListener("click", () => startDownload(url, fmt));
-
-      if (fmt.type === "audio") {
-        audioGrid.appendChild(btn);
-      } else {
-        videoGrid.appendChild(btn);
-      }
+      btn.addEventListener("click", () => startDownload(url, fmt, "yt"));
+      if (fmt.type === "audio") audioGrid.appendChild(btn);
+      else videoGrid.appendChild(btn);
     });
 
-    document.getElementById("videoInfo").style.display = "block";
-    document.getElementById("dlStatus").style.display = "none";
+    document.getElementById("ytVideoInfo").style.display = "block";
+    document.getElementById("ytDlStatus").style.display = "none";
   }
 
-  async function startDownload(url, fmt) {
-    const dlStatus = document.getElementById("dlStatus");
-    const dlLabel = document.getElementById("dlLabel");
+  // ── INSTAGRAM ─────────────────────────────────
+  async function igFetchInfo() {
+    const url = document.getElementById("igUrlInput").value.trim();
+    if (!url) { setStatus("igStatusMsg", "error", "Please paste an Instagram URL first."); return; }
+    if (!url.includes("instagram.com")) { setStatus("igStatusMsg", "error", "Please enter a valid Instagram URL."); return; }
+
+    document.getElementById("igFetchBtn").disabled = true;
+    document.getElementById("igVideoInfo").style.display = "none";
+    setStatus("igStatusMsg", "loading", "Fetching Instagram video info…");
+
+    try {
+      const res = await fetch(`${API}/info?url=${encodeURIComponent(url)}`);
+      const data = await res.json();
+      if (!res.ok) { setStatus("igStatusMsg", "error", data.error || "Failed to fetch video info."); return; }
+      clearStatus("igStatusMsg");
+      igRenderInfo(data);
+    } catch (e) {
+      setStatus("igStatusMsg", "error", "Cannot connect to server.");
+    } finally {
+      document.getElementById("igFetchBtn").disabled = false;
+    }
+  }
+
+  function igRenderInfo(data) {
+    document.getElementById("igThumbnail").src = data.thumbnail || "";
+    document.getElementById("igVideoTitle").textContent = data.title || "Instagram Video";
+    document.getElementById("igChannelName").textContent = data.channel || "Unknown";
+    document.getElementById("igDuration").textContent = formatDuration(data.duration);
+
+    const grid = document.getElementById("igFormats");
+    grid.innerHTML = "";
+
+    const url = document.getElementById("igUrlInput").value.trim();
+
+    (data.formats || []).forEach((fmt) => {
+      const btn = document.createElement("button");
+      btn.className = "fmt-btn ig-fmt-btn";
+      btn.innerHTML = `
+        <span class="fmt-tag tag-ig">${fmt.ext.toUpperCase()}</span>
+        <div class="fmt-label">${fmt.label}</div>
+        <div class="fmt-note">${fmt.note || ""}</div>
+      `;
+      btn.addEventListener("click", () => startDownload(url, fmt, "ig"));
+      grid.appendChild(btn);
+    });
+
+    document.getElementById("igVideoInfo").style.display = "block";
+    document.getElementById("igDlStatus").style.display = "none";
+  }
+
+  // ── SHARED DOWNLOAD ───────────────────────────
+  async function startDownload(url, fmt, platform) {
+    const prefix = platform;
+    const dlStatus = document.getElementById(`${prefix}DlStatus`);
+    const dlLabel  = document.getElementById(`${prefix}DlLabel`);
 
     dlStatus.style.display = "block";
     dlLabel.textContent = `Downloading ${fmt.label}…`;
     dlStatus.scrollIntoView({ behavior: "smooth", block: "nearest" });
 
-    // Disable all buttons
     document.querySelectorAll(".fmt-btn").forEach(b => b.classList.add("downloading"));
 
     try {
@@ -585,7 +805,6 @@
         return;
       }
 
-      // Trigger file download
       const blob = await res.blob();
       const disposition = res.headers.get("Content-Disposition") || "";
       let filename = fmt.label.replace(/[^a-z0-9_\- ]/gi, "") + "." + fmt.ext;
@@ -606,10 +825,9 @@
     }
   }
 
-  // Allow Enter key
-  document.getElementById("urlInput").addEventListener("keydown", (e) => {
-    if (e.key === "Enter") fetchInfo();
-  });
+  // Allow Enter key on both inputs
+  document.getElementById("ytUrlInput").addEventListener("keydown", e => { if (e.key === "Enter") ytFetchInfo(); });
+  document.getElementById("igUrlInput").addEventListener("keydown", e => { if (e.key === "Enter") igFetchInfo(); });
 </script>
 </body>
 </html>
