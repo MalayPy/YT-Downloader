@@ -14,6 +14,23 @@ app.use(express.static(path.join(__dirname, "public")));
 
 const IS_RAILWAY = !!process.env.RAILWAY_ENVIRONMENT;
 
+// Write cookies to temp file if env var is set
+const cookiesPath = path.join(os.tmpdir(), "yt_cookies.txt");
+if (process.env.YT_COOKIES) {
+  fs.writeFileSync(cookiesPath, process.env.YT_COOKIES, "utf8");
+  console.log("✅ YouTube cookies loaded from environment");
+} else {
+  console.log("⚠️  No YT_COOKIES env var found - YouTube may block requests");
+}
+
+function getCookieArgs() {
+  if (process.env.YT_COOKIES) return ["--cookies", cookiesPath];
+  // fallback: try local cookies.txt
+  const localCookies = path.join(__dirname, "cookies.txt");
+  if (fs.existsSync(localCookies)) return ["--cookies", localCookies];
+  return [];
+}
+
 function getBinPath(name) {
   // On Railway, yt-dlp is installed globally via pip (on PATH)
   if (IS_RAILWAY) return `/usr/local/bin/${name}`;
@@ -65,6 +82,7 @@ app.get("/api/info", (req, res) => {
     "--user-agent", "com.google.ios.youtube/19.29.1 CFNetwork/1474 Darwin/23.0.0",
     "--add-header", "X-Youtube-Client-Name:5",
     "--add-header", "X-Youtube-Client-Version:19.29.1",
+    ...getCookieArgs(),
     url,
   ];
 
@@ -153,6 +171,7 @@ app.post("/api/download", (req, res) => {
       "--user-agent", "com.google.ios.youtube/19.29.1 CFNetwork/1474 Darwin/23.0.0",
       "--add-header", "X-Youtube-Client-Name:5",
       "--add-header", "X-Youtube-Client-Version:19.29.1",
+      ...getCookieArgs(),
       "-x",
       "--audio-format", "mp3",
       "--audio-quality", "0",
@@ -176,6 +195,7 @@ app.post("/api/download", (req, res) => {
       "--user-agent", "com.google.ios.youtube/19.29.1 CFNetwork/1474 Darwin/23.0.0",
       "--add-header", "X-Youtube-Client-Name:5",
       "--add-header", "X-Youtube-Client-Version:19.29.1",
+      ...getCookieArgs(),
       "-f", formatStr,
       "--merge-output-format", "mp4",
       "--postprocessor-args", "ffmpeg:-c:v copy -c:a aac",
