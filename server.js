@@ -126,17 +126,22 @@ app.get("/api/info", (req, res) => {
         note: "Best audio quality",
       });
 
-      // Collect unique video heights
-      const heights = new Set();
+      // Build height -> best format ID map
+      const heightMap = new Map();
       (info.formats || []).forEach((f) => {
         if (f.height && f.vcodec && f.vcodec !== "none" && f.height >= 144) {
-          heights.add(f.height);
+          const existing = heightMap.get(f.height);
+          // Prefer mp4, then any
+          if (!existing || (f.ext === "mp4" && existing.ext !== "mp4")) {
+            heightMap.set(f.height, { fid: f.format_id, ext: f.ext });
+          }
         }
       });
 
-      [...heights].sort((a, b) => b - a).forEach((h) => {
+      [...heightMap.keys()].sort((a, b) => b - a).forEach((h) => {
+        const { fid, ext } = heightMap.get(h);
         formatsMap.set(`${h}p`, {
-          id: `${h}p`,
+          id: `${h}p__${fid}`,
           label: `${h}p — MP4`,
           ext: "mp4",
           type: "video",
@@ -200,10 +205,15 @@ app.post("/api/download", (req, res) => {
   } else {
     let formatStr;
     if (formatId === "best") {
-      formatStr = "bestvideo[ext=mp4]+bestaudio[ext=m4a]/bestvideo+bestaudio/best/bestvideo*+bestaudio*/best";
+      formatStr = "bestvideo[ext=mp4]+bestaudio[ext=m4a]/bestvideo+bestaudio/best";
+    } else if (formatId.includes("__")) {
+      // Use actual format ID from yt-dlp + best audio
+      const vidFid = formatId.split("__")[1];
+      const h = parseInt(formatId.split("__")[0]);
+      formatStr = `${vidFid}+bestaudio[ext=m4a]/${vidFid}+bestaudio/bestvideo[height<=${h}]+bestaudio/best[height<=${h}]/best`;
     } else {
       const h = parseInt(formatId);
-      formatStr = `bestvideo[height<=${h}][ext=mp4]+bestaudio[ext=m4a]/bestvideo[height<=${h}]+bestaudio/best[height<=${h}]/bestvideo*[height<=${h}]+bestaudio*/best`;
+      formatStr = `bestvideo[height<=${h}][ext=mp4]+bestaudio[ext=m4a]/bestvideo[height<=${h}]+bestaudio/best[height<=${h}]/best`;
     }
 
     args = [
