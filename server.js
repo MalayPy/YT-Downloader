@@ -18,38 +18,30 @@ const IS_RAILWAY = !!process.env.RAILWAY_ENVIRONMENT;
 const cookiesPath = path.join(os.tmpdir(), "yt_cookies.txt");
 
 function setupCookies() {
-  // Try base64 encoded
+  // Try base64 encoded (most reliable for Railway multi-line values)
   if (process.env.YT_COOKIES_B64) {
-    const decoded = Buffer.from(process.env.YT_COOKIES_B64, "base64").toString("utf8");
-    fs.writeFileSync(cookiesPath, decoded, "utf8");
-    console.log("✅ YouTube cookies loaded from YT_COOKIES_B64");
-    return true;
-  }
-  // Try plain text YT_COOKIES
-  if (process.env.YT_COOKIES) {
-    // Check if it looks like base64
-    const val = process.env.YT_COOKIES;
-    const isBase64 = /^[A-Za-z0-9+/=]+$/.test(val.trim()) && val.length > 500;
-    if (isBase64) {
-      try {
-        const decoded = Buffer.from(val, "base64").toString("utf8");
+    try {
+      const decoded = Buffer.from(process.env.YT_COOKIES_B64.trim(), "base64").toString("utf8");
+      if (decoded.includes("# Netscape") || decoded.includes("youtube.com")) {
         fs.writeFileSync(cookiesPath, decoded, "utf8");
-        console.log("✅ YouTube cookies loaded from YT_COOKIES (base64 decoded)");
+        console.log("✅ YouTube cookies loaded from YT_COOKIES_B64");
         return true;
-      } catch(e) {}
+      } else {
+        console.log("⚠️  YT_COOKIES_B64 decoded but does not look like valid cookies");
+        console.log("First 100 chars:", decoded.substring(0, 100));
+      }
+    } catch(e) {
+      console.log("⚠️  Failed to decode YT_COOKIES_B64:", e.message);
     }
-    fs.writeFileSync(cookiesPath, val, "utf8");
-    console.log("✅ YouTube cookies loaded from YT_COOKIES (plain text)");
-    return true;
   }
-  // Try local file
-  const localCookies = path.join(__dirname, "cookies.txt");
+  // Try local cookies.txt file
+  const localCookies = path.join(__dirname, "youtube_cookies.txt");
   if (fs.existsSync(localCookies)) {
     fs.copyFileSync(localCookies, cookiesPath);
     console.log("✅ YouTube cookies loaded from local cookies.txt");
     return true;
   }
-  console.log("⚠️  No cookies found - YouTube will likely block requests");
+  console.log("⚠️  No valid cookies found - YouTube will likely block requests");
   return false;
 }
 
