@@ -97,6 +97,8 @@ app.get("/api/info", (req, res) => {
   const ytdlp = getBinPath("yt-dlp");
   const binDir = getFfmpegDir();
 
+  const proxyArgs = process.env.PROXY_URL ? ["--proxy", process.env.PROXY_URL] : [];
+
   const args = [
     "--dump-json",
     "--no-playlist",
@@ -107,6 +109,7 @@ app.get("/api/info", (req, res) => {
     "--add-header", "X-Youtube-Client-Name:5",
     "--add-header", "X-Youtube-Client-Version:19.29.1",
     ...getCookieArgs(),
+    ...proxyArgs,
     url,
   ];
 
@@ -193,6 +196,7 @@ app.post("/api/download", (req, res) => {
   let args;
 
   if (formatId === "mp3") {
+    const dlProxyArgs = process.env.PROXY_URL ? ["--proxy", process.env.PROXY_URL] : [];
     args = [
       "--no-playlist",
       "--no-warnings",
@@ -202,6 +206,7 @@ app.post("/api/download", (req, res) => {
       "--add-header", "X-Youtube-Client-Name:5",
       "--add-header", "X-Youtube-Client-Version:19.29.1",
       ...getCookieArgs(),
+      ...dlProxyArgs,
       "-x",
       "--audio-format", "mp3",
       "--audio-quality", "0",
@@ -210,16 +215,12 @@ app.post("/api/download", (req, res) => {
     ];
   } else {
     let formatStr;
-    if (formatId === "best") {
-      formatStr = "bestvideo[ext=mp4]+bestaudio[ext=m4a]/bestvideo+bestaudio/best";
-    } else if (formatId.includes("__")) {
-      // Use actual format ID from yt-dlp + best audio
+    if (formatId === "best" || !formatId.includes("__")) {
+      formatStr = "bestvideo+bestaudio/best";
+    } else {
       const vidFid = formatId.split("__")[1];
       const h = parseInt(formatId.split("__")[0]);
-      formatStr = `${vidFid}+bestaudio[ext=m4a]/${vidFid}+bestaudio/bestvideo[height<=${h}]+bestaudio/best[height<=${h}]/best`;
-    } else {
-      const h = parseInt(formatId);
-      formatStr = `bestvideo[height<=${h}][ext=mp4]+bestaudio[ext=m4a]/bestvideo[height<=${h}]+bestaudio/best[height<=${h}]/best`;
+      formatStr = `${vidFid}+bestaudio/${vidFid}+140/${vidFid}/bestvideo[height<=${h}]+bestaudio/best[height<=${h}]/bestvideo+bestaudio/best`;
     }
 
     args = [
@@ -231,6 +232,7 @@ app.post("/api/download", (req, res) => {
       "--add-header", "X-Youtube-Client-Name:5",
       "--add-header", "X-Youtube-Client-Version:19.29.1",
       ...getCookieArgs(),
+      ...dlProxyArgs,
       "-f", formatStr,
       "--merge-output-format", "mp4",
       "--postprocessor-args", "ffmpeg:-c:v copy -c:a copy",
