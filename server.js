@@ -18,34 +18,37 @@ const IS_RAILWAY = !!process.env.RAILWAY_ENVIRONMENT;
 const cookiesPath = path.join(os.tmpdir(), "yt_cookies.txt");
 
 function setupCookies() {
-  // Try base64 encoded (most reliable for Railway multi-line values)
-  if (process.env.YT_COOKIES_B64) {
-    try {
-      const decoded = Buffer.from(process.env.YT_COOKIES_B64.trim(), "base64").toString("utf8");
-      if (decoded.includes("# Netscape") || decoded.includes("youtube.com")) {
-        fs.writeFileSync(cookiesPath, decoded, "utf8");
-        console.log("✅ YouTube cookies loaded from YT_COOKIES_B64");
-        return true;
-      } else {
-        console.log("⚠️  YT_COOKIES_B64 decoded but does not look like valid cookies");
-        console.log("First 100 chars:", decoded.substring(0, 100));
-      }
-    } catch(e) {
-      console.log("⚠️  Failed to decode YT_COOKIES_B64:", e.message);
+  // 1. Try plain text YT_COOKIES env var
+  if (process.env.YT_COOKIES) {
+    const val = process.env.YT_COOKIES.trim();
+    if (val.includes("youtube.com")) {
+      fs.writeFileSync(cookiesPath, val, "utf8");
+      console.log("✅ YouTube cookies loaded from YT_COOKIES env var");
+      return true;
     }
+    console.log("⚠️  YT_COOKIES set but does not contain youtube.com entries");
   }
-  // Try local cookies.txt file
-  const localCookies = path.join(__dirname, "youtube_cookies.txt");
-  if (fs.existsSync(localCookies)) {
-    fs.copyFileSync(localCookies, cookiesPath);
-    console.log("✅ YouTube cookies loaded from local cookies.txt");
-    return true;
+  // 2. Try cookies.txt in project root
+  const names = ["cookies.txt", "youtube_cookies.txt"];
+  for (const name of names) {
+    const p = path.join(__dirname, name);
+    if (fs.existsSync(p)) {
+      fs.copyFileSync(p, cookiesPath);
+      console.log(`✅ YouTube cookies loaded from ${name}`);
+      return true;
+    }
   }
   console.log("⚠️  No valid cookies found - YouTube will likely block requests");
   return false;
 }
 
 const hasCookies = setupCookies();
+
+// Debug: list files in __dirname to confirm cookies.txt is present
+const dirFiles = fs.readdirSync(__dirname);
+console.log("📁 Files in project root:", dirFiles.join(", "));
+console.log("🍪 Cookies file exists:", fs.existsSync(path.join(__dirname, "cookies.txt")));
+console.log("🍪 youtube_cookies.txt exists:", fs.existsSync(path.join(__dirname, "youtube_cookies.txt")));
 
 function getCookieArgs() {
   if (hasCookies) return ["--cookies", cookiesPath];
