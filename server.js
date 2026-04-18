@@ -14,18 +14,37 @@ app.use(express.static(path.join(__dirname, "public")));
 
 const IS_RAILWAY = !!process.env.RAILWAY_ENVIRONMENT;
 
-// Write cookies to temp file if env var is set
+// Write cookies to temp file from env var
 const cookiesPath = path.join(os.tmpdir(), "yt_cookies.txt");
-if (process.env.YT_COOKIES) {
-  fs.writeFileSync(cookiesPath, process.env.YT_COOKIES, "utf8");
-  console.log("✅ YouTube cookies loaded from environment");
-} else {
-  console.log("⚠️  No YT_COOKIES env var found - YouTube may block requests");
+
+function setupCookies() {
+  // Try base64 encoded first (more reliable for Railway)
+  if (process.env.YT_COOKIES_B64) {
+    const decoded = Buffer.from(process.env.YT_COOKIES_B64, "base64").toString("utf8");
+    fs.writeFileSync(cookiesPath, decoded, "utf8");
+    console.log("✅ YouTube cookies loaded from YT_COOKIES_B64");
+    return true;
+  }
+  // Try plain text
+  if (process.env.YT_COOKIES) {
+    fs.writeFileSync(cookiesPath, process.env.YT_COOKIES, "utf8");
+    console.log("✅ YouTube cookies loaded from YT_COOKIES");
+    return true;
+  }
+  // Try local file
+  const localCookies = path.join(__dirname, "cookies.txt");
+  if (fs.existsSync(localCookies)) {
+    console.log("✅ YouTube cookies loaded from local cookies.txt");
+    return true;
+  }
+  console.log("⚠️  No cookies found - YouTube will likely block requests");
+  return false;
 }
 
+const hasCookies = setupCookies();
+
 function getCookieArgs() {
-  if (process.env.YT_COOKIES) return ["--cookies", cookiesPath];
-  // fallback: try local cookies.txt
+  if (process.env.YT_COOKIES_B64 || process.env.YT_COOKIES) return ["--cookies", cookiesPath];
   const localCookies = path.join(__dirname, "cookies.txt");
   if (fs.existsSync(localCookies)) return ["--cookies", localCookies];
   return [];
@@ -181,10 +200,10 @@ app.post("/api/download", (req, res) => {
   } else {
     let formatStr;
     if (formatId === "best") {
-      formatStr = "bestvideo[ext=mp4]+bestaudio[ext=m4a]/bestvideo+bestaudio/best";
+      formatStr = "bestvideo[ext=mp4]+bestaudio[ext=m4a]/bestvideo+bestaudio/best/bestvideo*+bestaudio*/best";
     } else {
       const h = parseInt(formatId);
-      formatStr = `bestvideo[height<=${h}][ext=mp4]+bestaudio[ext=m4a]/bestvideo[height<=${h}]+bestaudio/best[height<=${h}]`;
+      formatStr = `bestvideo[height<=${h}][ext=mp4]+bestaudio[ext=m4a]/bestvideo[height<=${h}]+bestaudio/best[height<=${h}]/bestvideo*[height<=${h}]+bestaudio*/best`;
     }
 
     args = [
@@ -198,7 +217,8 @@ app.post("/api/download", (req, res) => {
       ...getCookieArgs(),
       "-f", formatStr,
       "--merge-output-format", "mp4",
-      "--postprocessor-args", "ffmpeg:-c:v copy -c:a aac",
+      "--postprocessor-args", "ffmpeg:-c:v copy -c:a copy",
+      "--prefer-free-formats",
       "-o", outTemplate,
       url,
     ];
