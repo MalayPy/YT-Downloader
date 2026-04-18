@@ -18,22 +18,34 @@ const IS_RAILWAY = !!process.env.RAILWAY_ENVIRONMENT;
 const cookiesPath = path.join(os.tmpdir(), "yt_cookies.txt");
 
 function setupCookies() {
-  // Try base64 encoded first (more reliable for Railway)
+  // Try base64 encoded
   if (process.env.YT_COOKIES_B64) {
     const decoded = Buffer.from(process.env.YT_COOKIES_B64, "base64").toString("utf8");
     fs.writeFileSync(cookiesPath, decoded, "utf8");
     console.log("✅ YouTube cookies loaded from YT_COOKIES_B64");
     return true;
   }
-  // Try plain text
+  // Try plain text YT_COOKIES
   if (process.env.YT_COOKIES) {
-    fs.writeFileSync(cookiesPath, process.env.YT_COOKIES, "utf8");
-    console.log("✅ YouTube cookies loaded from YT_COOKIES");
+    // Check if it looks like base64
+    const val = process.env.YT_COOKIES;
+    const isBase64 = /^[A-Za-z0-9+/=]+$/.test(val.trim()) && val.length > 500;
+    if (isBase64) {
+      try {
+        const decoded = Buffer.from(val, "base64").toString("utf8");
+        fs.writeFileSync(cookiesPath, decoded, "utf8");
+        console.log("✅ YouTube cookies loaded from YT_COOKIES (base64 decoded)");
+        return true;
+      } catch(e) {}
+    }
+    fs.writeFileSync(cookiesPath, val, "utf8");
+    console.log("✅ YouTube cookies loaded from YT_COOKIES (plain text)");
     return true;
   }
   // Try local file
   const localCookies = path.join(__dirname, "cookies.txt");
   if (fs.existsSync(localCookies)) {
+    fs.copyFileSync(localCookies, cookiesPath);
     console.log("✅ YouTube cookies loaded from local cookies.txt");
     return true;
   }
@@ -44,9 +56,7 @@ function setupCookies() {
 const hasCookies = setupCookies();
 
 function getCookieArgs() {
-  if (process.env.YT_COOKIES_B64 || process.env.YT_COOKIES) return ["--cookies", cookiesPath];
-  const localCookies = path.join(__dirname, "cookies.txt");
-  if (fs.existsSync(localCookies)) return ["--cookies", localCookies];
+  if (hasCookies) return ["--cookies", cookiesPath];
   return [];
 }
 
@@ -107,10 +117,11 @@ app.get("/api/info", (req, res) => {
 
   execFile(ytdlp, args, { timeout: 30000 }, (err, stdout, stderr) => {
     if (err) {
-      console.error("yt-dlp error:", stderr || err.message);
+      const errMsg = stderr || err.message || "unknown error";
+      console.error("yt-dlp error:", errMsg);
       return res.status(500).json({
-        error: "Could not fetch video info. Run: node setup.js",
-        details: stderr || err.message,
+        error: errMsg,
+        details: errMsg,
       });
     }
     try {
