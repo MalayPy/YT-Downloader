@@ -1,4 +1,4 @@
 node_modules/
 bin/
 *.log
-cookies.txt
+youtube_cookies.txt
